@@ -1,107 +1,82 @@
 class ClockCalendar extends HTMLElement{
     constructor(){
-        super();  
+        super();
+
         this.isEuDate = true;
         this.isShortFormat = true;
         this.isTime = true;
+
         this.addEventListener("click", e => {
-            if(this.isTime){
+            this.formatSwitch();                
+        });
+
+        this.addEventListener("contextmenu", e => {
+            e.preventDefault();
+            this.menuSwitch();
+        });
+    };
+
+    formatSwitch(){ 
+        if(this.isTime){
             this.isShortFormat = !this.isShortFormat;
             this.showTime();
             } else{
                 this.isEuDate = !this.isEuDate;
                 this.showDate();
-            };        
-        });
-        this.addEventListener("contextmenu", e => {
-            e.preventDefault();
-            if(this.isTime){            
+            };
+    };
+
+    menuSwitch(){
+        if(this.isTime){            
             this.isTime = !this.isTime;
             this.showDate();
             } else{
                 this.isTime = !this.isTime;
                 this.showTime();
             };
-        });
-    };
-    connectedCallback(){ 
+        };    
+
+    connectedCallback(){
         const template = document.querySelector('template');       
         const shadowRoot = this.attachShadow ({mode: 'open'});        
         const content = document.importNode (template.content, true);
-        shadowRoot.appendChild(content);   
+
+        shadowRoot.appendChild(content);
+
         this.clockCalendar = shadowRoot.querySelector('.clock-calendar');
-        clearInterval(this.timer);            
-        this.timer = this.getTime();
+
+        this.getTime();
+        this.showTime();
     };
 
-    getTime(){                   
-        let elem = this.clockCalendar;
-        let swith = this.isShortFormat;
+    getTime(){
         let date = new Date();
-        let hours = date.getHours();
-        if(hours < 10) hours = '0' + hours;
-        let minutes = date.getMinutes();
-        if(minutes < 10) minutes = '0' + minutes; 
-        let seconds = date.getSeconds();
-        if(seconds < 10) seconds = '0'+ seconds;
-        let currentTime = `${hours}:${minutes}:${seconds}`;
-        if(swith) currentTime = `${hours}:${minutes}`;
-        elem.innerHTML = currentTime;               
-        let timer = setInterval(function (){
-        let date = new Date();
-        let hours = date.getHours();
-        if(hours < 10) hours = '0' + hours;
-        let minutes = date.getMinutes();
-        if (minutes < 10) minutes = '0' + minutes; 
-        let seconds = date.getSeconds();
-        if(seconds < 10) seconds = '0'+ seconds;
-        let currentTime = `${hours}:${minutes}:${seconds}`;
-        if(swith) currentTime = `${hours}:${minutes}`;
-        elem.innerHTML = currentTime;           
-        },1000);        
-        return timer;
+        let currentTime = date.toLocaleTimeString ("uk-UA");
+
+        if(this.isShortFormat) currentTime = date.toLocaleTimeString ("uk-UA", {hour:"2-digit",minute:"2-digit",});;
+        this.clockCalendar.innerHTML = currentTime;                             
+    };    
+
+    getDate(){     
+        let date = new Date();  
+        let currentDate = date.toLocaleDateString ("uk-UA");
+
+        if(this.isEuDate)currentDate = date.toLocaleDateString ("en-US", {year:"2-digit",month:"2-digit", day:"2-digit"});        
+        this.clockCalendar.innerHTML = currentDate;        
     };
 
-    getDate(){                   
-        let elem = this.clockCalendar;
-        let swith = this.isEuDate;
-        let date = new Date();
-        let day = date.getDate();
-        if(day < 10) day = '0' + day;
-        let month = date.getMonth()+1;
-        if (month < 10) month = '0' + month; 
-        let year = date.getFullYear();        
-        let currentDate = `${day}.${month}.${year}`;
-        if(swith){
-            year = date.getFullYear() % 100;
-            currentDate = `${month}/${day}/${year}`;
-        };
-        elem.innerHTML = currentDate;               
-        let timer = setInterval(function (){
-        let date = new Date();
-        let day = date.getDate();
-        if(day < 10) hours = '0' + day;
-        let month = date.getMonth()+1;
-        if (month < 10) minutes = '0' + month; 
-        let year = date.getFullYear();        
-        let currentDate = `${day}.${month}.${year}`;
-        if(swith){
-            year = date.getFullYear() % 100;
-            currentDate = `${month}/${day}/${year}`;
-        };
-        elem.innerHTML = currentDate;         
-        },60000);        
-        return timer;
-    };
-
-    showTime(){        
-        clearInterval(this.timer);            
-        this.timer = this.getTime();           
-    };
-
+    showTime(){   
+        clearInterval(this.timer);          
+        this.timer = setInterval(this.getTime.bind(this),1000);
+        this.getTime();
+                
+    };   
+    
     showDate(){        
-        clearInterval(this.timer);            
-        this.timer = this.getDate();
+        clearInterval(this.timer);           
+        this.timer =  setInterval(this.getDate.bind(this),60000);
+        this.getDate();       
+        
     };            
 };
 customElements.define("clock-calendar", ClockCalendar);

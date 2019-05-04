@@ -5,12 +5,31 @@
     justify-content: center;
     align-items: center;
     align-content: center;
-}           
+}
+
 .clock-calendar{
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 100px;
     text-align: center;
+    color: white;
     cursor: pointer;
-} 
-.conteiner :hover{
-    color: green;
+    width: 550px;
+    height: 115px;
+    box-shadow: 0 -150px 70px -120px teal inset,
+    0 -220px 70px -120px yellowgreen inset,
+    0 -280px 70px -120px gold inset; 
+   } 
+
+.conteiner :hover{   
+    animation: background 4s infinite alternate;
 }
+
+@keyframes background{
+    50% {
+      background: darkviolet;
+      box-shadow: 0 -140px 70px -120px mediumorchid inset,
+                  0 -210px 70px -120px teal inset,
+                  0 -280px 70px -120px plum inset;
+    }
+}
+
